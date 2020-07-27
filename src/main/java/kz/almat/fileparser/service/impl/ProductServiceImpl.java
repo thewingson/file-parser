@@ -1,5 +1,7 @@
 package kz.almat.fileparser.service.impl;
 
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 import kz.almat.fileparser.model.Product;
 import kz.almat.fileparser.pojo.xls.ProductEntity;
 import kz.almat.fileparser.repo.ProductRepo;
@@ -10,6 +12,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,7 +77,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void updateFromFile(MultipartFile file) throws Exception {
-        List<ProductEntity> productEntities = xlsxFileParser.read(file, ProductEntity.class);
-        System.out.println(productEntities);
+
+        File convFile = new File(System.getProperty("java.io.tmpdir")+"/"+file.getOriginalFilename()); // TODO: System.getProperty("java.io.tmpdir") получать из FileUtilClass
+        file.transferTo(convFile);
+
+        InputStream stream = new FileInputStream(convFile);
+//        List<ProductEntity> products = Poiji.fromExcel(stream, PoijiExcelType.XLSX, ProductEntity.class);
+//        System.out.println(products);
     }
 }
