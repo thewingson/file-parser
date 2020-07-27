@@ -4,14 +4,12 @@ import kz.almat.fileparser.model.Product;
 import kz.almat.fileparser.pojo.xls.ProductEntity;
 import kz.almat.fileparser.repo.ProductRepo;
 import kz.almat.fileparser.service.ProductService;
-import kz.almat.fileparser.util.XlsFileParser;
+import kz.almat.fileparser.util.XlsxFileParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +22,13 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
-    private final XlsFileParser xlsFileParser;
+    private final XlsxFileParser xlsxFileParser;
 
     @Autowired
     public ProductServiceImpl(ProductRepo productRepo,
-                              @Qualifier("xls") XlsFileParser xlsFileParser) {
+                              @Qualifier("xlsx") XlsxFileParser xlsxFileParser) {
         this.productRepo = productRepo;
-        this.xlsFileParser = xlsFileParser;
+        this.xlsxFileParser = xlsxFileParser;
     }
 
     @Override
@@ -74,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void updateFromFile(MultipartFile file) throws Exception {
-        List<ProductEntity> productEntities = xlsFileParser.read(file, ProductEntity.class);
+        List<ProductEntity> productEntities = xlsxFileParser.read(file, ProductEntity.class);
         System.out.println(productEntities);
     }
 }

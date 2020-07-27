@@ -8,16 +8,16 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author Almat
@@ -77,34 +77,25 @@ public class ProductRest {
     @PostMapping(value = "/update-from-file",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateFromFile(@RequestParam("file") MultipartFile file) {
-//        try {
-//            productService.updateFromFile(file);
-//            return ResponseEntity.ok().build();
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-
-        File filExcell = new File("document.xls");
 
         try {
-            FileInputStream excelFile = new FileInputStream(filExcell);
-            Workbook workbook =  new HSSFWorkbook(excelFile);
-            Sheet datatypeSheet = workbook.getSheetAt(0);
-
-            int rowSize = datatypeSheet.getLastRowNum() + 1;
-            int colSize = datatypeSheet.getRow(0).getLastCellNum();
-            for (int i = 0; i < rowSize; i++) {
-                for (int j = 0; j < colSize; j++) {
-                    Cell currentCell = datatypeSheet.getRow(i).getCell(j);
-                    System.out.print("[" + currentCell.toString() + "]");
-                }
-                System.out.println();
-            }
-
-            return null;
+            productService.updateFromFile(file);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+
+//            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+//            XSSFSheet datatypeSheet = workbook.getSheetAt(0);
+//
+//            int rowSize = datatypeSheet.getLastRowNum() + 1;
+//            int colSize = datatypeSheet.getRow(0).getLastCellNum();
+//            for (int i = 0; i < rowSize; i++) {
+//                for (int j = 0; j < colSize; j++) {
+//                    Cell currentCell = datatypeSheet.getRow(i).getCell(j);
+//                    System.out.print("[" + currentCell.toString() + "]");
+//                }
+//            }
     }
 
     @DeleteMapping("/{id}")
