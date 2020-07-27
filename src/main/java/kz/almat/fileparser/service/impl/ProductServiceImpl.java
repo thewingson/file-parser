@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         file.transferTo(convFile);
 
         InputStream stream = new FileInputStream(convFile);
-//        List<ProductEntity> products = Poiji.fromExcel(stream, PoijiExcelType.XLSX, ProductEntity.class);
-//        System.out.println(products);
+        List<ProductEntity> products = Poiji.fromExcel(stream, PoijiExcelType.XLSX, ProductEntity.class);
+        System.out.println(products);
     }
 }
