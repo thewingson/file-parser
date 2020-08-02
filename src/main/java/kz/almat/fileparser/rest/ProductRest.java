@@ -1,6 +1,7 @@
 package kz.almat.fileparser.rest;
 
 import kz.almat.fileparser.model.Product;
+import kz.almat.fileparser.pojo.ProductFilter;
 import kz.almat.fileparser.pojo.xls.ProductEntity;
 import kz.almat.fileparser.service.ProductService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -11,6 +12,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,9 +57,9 @@ public class ProductRest {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody Product product) {
+    public ResponseEntity<?> add(@RequestBody ProductFilter productFilter) {
         try {
-            productService.addProduct(product);
+            productService.addProduct(productFilter);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -74,30 +77,6 @@ public class ProductRest {
         }
     }
 
-    @PostMapping(value = "/update-from-file",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateFromFile(@RequestParam("file") MultipartFile file) {
-
-        try {
-            productService.updateFromFile(file);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-
-//            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
-//            XSSFSheet datatypeSheet = workbook.getSheetAt(0);
-//
-//            int rowSize = datatypeSheet.getLastRowNum() + 1;
-//            int colSize = datatypeSheet.getRow(0).getLastCellNum();
-//            for (int i = 0; i < rowSize; i++) {
-//                for (int j = 0; j < colSize; j++) {
-//                    Cell currentCell = datatypeSheet.getRow(i).getCell(j);
-//                    System.out.print("[" + currentCell.toString() + "]");
-//                }
-//            }
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         try {
@@ -108,15 +87,30 @@ public class ProductRest {
         }
     }
 
-    private Workbook getWorkbook(FileInputStream excelFile, String fileName) { // TODO: !!! сделать общим методом, не private
+    @GetMapping("/export/excel")
+    public ResponseEntity<?> exportToExcel() {
         try {
-            if (fileName.endsWith(".xlsx")) {
-                return new XSSFWorkbook(excelFile);
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Загруженный файл не является Excel файлом. Попробуйте ещё раз.");
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+            headers.add("Content-Type", "application/vnd.ms-excel");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .body(new InputStreamResource(productService.exportToExcel()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return null;
+    }
+
+    @PostMapping(value = "/update/excel")
+    public ResponseEntity<?> updateFromFile(@RequestParam("file") MultipartFile file) {
+        try {
+
+            return ResponseEntity.ok(productService.updateFromFile(file));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }
