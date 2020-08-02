@@ -18,7 +18,7 @@ public interface ProductService {
     Product getProductById(Long id) throws Exception;
     List<Product> getAllProducts() throws Exception;
     void addProduct(ProductFilter productFilter) throws Exception;
-    void editProduct(Long id, Product product) throws Exception;
+    void editProduct(Long id, ProductFilter product) throws Exception;
     void deleteProduct(Long id);
 
     Map<String, Long> updateFromFile(MultipartFile file) throws Exception;

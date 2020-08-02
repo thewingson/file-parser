@@ -68,9 +68,9 @@ public class ProductRest {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> edit(@PathVariable("id") Long id,
-                                  @RequestBody Product product) {
+                                  @RequestBody ProductFilter productFilter) {
         try {
-            productService.editProduct(id, product);
+            productService.editProduct(id, productFilter);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

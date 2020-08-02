@@ -93,14 +93,31 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Transactional
     @Override
-    public void editProduct(Long id, Product product) throws Exception {
-        try {
-            Product productById = getProductById(id);
-            productById.setName(product.getName());
-            productRepo.save(product);
-        } catch (Exception e) {
-            throw new Exception("INVALID ID");
+    public void editProduct(Long id, ProductFilter productFilter) throws Exception {
+        Optional<Product> product = productRepo.findById(id);
+        if(!product.isPresent()){
+            throw new Exception("INVALID PRODUCT ID");
+        }
+        Optional<Category> category = categoryRepo.findById(productFilter.getCategoryId());
+        if(!category.isPresent()){
+            Category categoryToCreate = new Category();
+            categoryToCreate.setName(productFilter.getName()); // getCategoryName();
+            categoryRepo.save(categoryToCreate);
+
+            CategoryProduct categoryProductToCreate = new CategoryProduct();
+            categoryProductToCreate.setProduct(product.get());
+            categoryProductToCreate.setCategory(categoryToCreate);
+            categoryProductRepo.save(categoryProductToCreate);
+        } else {
+            Optional<CategoryProduct> categoryProduct = categoryProductRepo.findByCategoryAndProduct(category.get(), product.get());
+            if(!categoryProduct.isPresent()){
+                CategoryProduct categoryProductToCreate = new CategoryProduct();
+                categoryProductToCreate.setProduct(product.get());
+                categoryProductToCreate.setCategory(category.get());
+                categoryProductRepo.save(categoryProductToCreate);
+            }
         }
     }
 
@@ -206,37 +223,37 @@ public class ProductServiceImpl implements ProductService {
         for (ProductExcelDto item : excelData) {
             Row row = sheet.createRow(rowIdx++);
 
-            if(item.getId() != null){
+            if (item.getId() != null) {
                 row.createCell(0).setCellValue(item.getId());
             }
-            if(item.getName() != null){
+            if (item.getName() != null) {
                 row.createCell(1).setCellValue(item.getName());
             }
-            if(item.getDescription() != null){
+            if (item.getDescription() != null) {
                 row.createCell(2).setCellValue(item.getDescription());
             }
-            if(item.getShortDescription() != null){
+            if (item.getShortDescription() != null) {
                 row.createCell(3).setCellValue(item.getShortDescription());
             }
-            if(item.getIngredients() != null){
+            if (item.getIngredients() != null) {
                 row.createCell(4).setCellValue(item.getIngredients());
             }
-            if(item.getWeight() != null){
+            if (item.getWeight() != null) {
                 row.createCell(5).setCellValue(item.getWeight());
             }
-            if(item.getCcal() != null){
+            if (item.getCcal() != null) {
                 row.createCell(6).setCellValue(item.getCcal());
             }
-            if(item.getDeleted() != null){
+            if (item.getDeleted() != null) {
                 row.createCell(7).setCellValue(item.getDeleted());
             }
-            if(item.getImgFull() != null){
+            if (item.getImgFull() != null) {
                 row.createCell(8).setCellValue(item.getImgFull());
             }
-            if(item.getCategoryId() != null){
+            if (item.getCategoryId() != null) {
                 row.createCell(9).setCellValue(item.getCategoryId());
             }
-            if(item.getCategoryName() != null){
+            if (item.getCategoryName() != null) {
                 row.createCell(10).setCellValue(item.getCategoryName());
             }
         }
